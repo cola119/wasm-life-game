@@ -36,10 +36,10 @@ impl Universe {
                 if delta_row == 0 && delta_col == 0 {
                     continue;
                 }
-                let neighbor_row = (row + delta_col) % self.height;
+                let neighbor_row = (row + delta_row) % self.height;
                 let neighbor_col = (column + delta_col) % self.width;
-                let index = self.get_index(neighbor_row, neighbor_col);
-                count += self.cells[index] as u8;
+                let idx = self.get_index(neighbor_row, neighbor_col);
+                count += self.cells[idx] as u8;
             }
         }
         count
@@ -66,8 +66,13 @@ impl Universe {
             cells,
         }
     }
+
+    pub fn render(&self) -> String {
+        self.to_string()
+    }
     pub fn tick(&mut self) {
         let mut next = self.cells.clone();
+
         for row in 0..self.height {
             for col in 0..self.width {
                 let idx = self.get_index(row, col);
@@ -76,7 +81,7 @@ impl Universe {
                 let next_cell = match (cell, live_neighbors) {
                     (Cell::Alive, x) if x < 2 => Cell::Dead,
                     (Cell::Alive, 2) | (Cell::Alive, 3) => Cell::Alive,
-                    (Cell::Alive, x) if x < 3 => Cell::Dead,
+                    (Cell::Alive, x) if x > 3 => Cell::Dead,
                     (Cell::Dead, 3) => Cell::Alive,
                     (otherwise, _) => otherwise,
                 };
